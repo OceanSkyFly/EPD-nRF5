@@ -55,7 +55,8 @@ typedef struct
     uint16_t width;
     uint16_t height;
     bool bwr;
-    bool invert_color;
+    bool invert_black; // invert black buffer
+    bool invert_color; // invert color buffer
 } epd_model_t;
 
 #define LOW             (0x0)
@@ -102,6 +103,6 @@ void EPD_LED_BLINK(void);
 float EPD_ReadVoltage(void);
 
 epd_model_t *epd_get(void);
-epd_model_t *epd_init(epd_model_id_t id);
+epd_model_t *epd_init(epd_model_id_t id, uint8_t invert);
 
 #endif

@@ -331,21 +331,32 @@ static epd_model_t *epd_models[] = {
 };
 
 // EPD model
-static epd_model_t *EPD = NULL;
+static epd_model_t EPD;
 
 epd_model_t *epd_get(void)
 {
-    return EPD == NULL ? epd_models[0] : EPD;
+    return &EPD;
 }
 
-epd_model_t *epd_init(epd_model_id_t id)
+#define INVERT_B       BIT(0)
+#define INVERT_R       BIT(1)
+
+epd_model_t *epd_init(epd_model_id_t id, uint8_t invert)
 {
+    epd_model_t *model = NULL;
     for (uint8_t i = 0; i < ARRAY_SIZE(epd_models); i++) {
         if (epd_models[i]->id == id) {
-            EPD = epd_models[i];
+            model = epd_models[i];
         }
     }
-    if (EPD == NULL) EPD = epd_models[0];
-    EPD->drv->init();
-    return EPD;
+    if (model == NULL) model = epd_models[0];
+    memcpy(&EPD, model, sizeof(epd_model_t));
+
+    if (invert != 0xFF) {
+        EPD.invert_black = (invert & INVERT_B) ? true : false;
+        EPD.invert_color = (invert & INVERT_R) ? true : false;
+    }
+    EPD.drv->init();
+
+    return &EPD;
 }

@@ -42,7 +42,7 @@ static void epd_gui_update(void * p_event_data, uint16_t event_size)
     ble_epd_t *p_epd = event->p_epd;
 
     EPD_GPIO_Init();
-    epd_model_t *epd = epd_init((epd_model_id_t)p_epd->config.model_id);
+    epd_model_t *epd = epd_init((epd_model_id_t)p_epd->config.model_id, p_epd->config.invert);
     gui_data_t data = {
         .bwr             = epd->bwr,
         .width           = epd->width,
@@ -108,11 +108,13 @@ static void epd_service_on_write(ble_epd_t * p_epd, uint8_t * p_data, uint16_t l
 
       case EPD_CMD_INIT: {
           uint8_t id = length > 1 ? p_data[1] : p_epd->config.model_id;
-          if (id != p_epd->config.model_id) {
+          uint8_t invert = length > 2 ? p_data[2] : p_epd->config.invert;
+          if (id != p_epd->config.model_id || invert != p_epd->config.invert) {
               p_epd->config.model_id = id;
+              p_epd->config.invert = invert;
               epd_config_write(&p_epd->config);
           }
-          p_epd->epd = epd_init((epd_model_id_t)id);
+          p_epd->epd = epd_init((epd_model_id_t)id, p_epd->config.invert);
         } break;
 
       case EPD_CMD_CLEAR:

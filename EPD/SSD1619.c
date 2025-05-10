@@ -124,7 +124,7 @@ void SSD1619_Clear(void)
     EPD_WriteCommand(CMD_WRITE_RAM1);
     for (uint16_t j = 0; j < Height; j++) {
         for (uint16_t i = 0; i < Width; i++) {
-            EPD_WriteByte(0xFF);
+            EPD_WriteByte(EPD->invert_black ? 0x00 : 0xFF);
         }
     }
     EPD_WriteCommand(CMD_WRITE_RAM2);
@@ -149,7 +149,8 @@ void SSD1619_Write_Image(uint8_t *black, uint8_t *color, uint16_t x, uint16_t y,
     EPD_WriteCommand(CMD_WRITE_RAM1);
     for (uint16_t i = 0; i < h; i++) {
         for (uint16_t j = 0; j < w / 8; j++) {
-            EPD_WriteByte(black ? black[j + i * wb] : 0xFF);
+            uint8_t data = black ? black[j + i * wb] : 0xFF;
+            EPD_WriteByte(EPD->invert_black ? ~data : data);
         }
     }
     EPD_WriteCommand(CMD_WRITE_RAM2);
@@ -189,6 +190,7 @@ const epd_model_t epd_ssd1619_420_bwr = {
     .width = 400,
     .height = 300,
     .bwr = true,
+    .invert_black = false,
     .invert_color = true,
 };
 
@@ -199,5 +201,6 @@ const epd_model_t epd_ssd1619_420_bw = {
     .width = 400,
     .height = 300,
     .bwr = false,
+    .invert_black = false,
     .invert_color = false,
 };
